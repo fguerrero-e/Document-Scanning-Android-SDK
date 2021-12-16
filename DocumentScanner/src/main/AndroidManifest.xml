@@ -15,12 +15,10 @@
 
         <activity
             android:name=".ui.scan.InternalScanActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/ActivityTheme" />
 
         <activity
             android:name=".ScanActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/ActivityTheme" />
 
     </application>
