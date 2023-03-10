@@ -32,11 +32,11 @@ import com.zynksoftware.documentscanner.R
 import com.zynksoftware.documentscanner.common.extensions.hide
 import com.zynksoftware.documentscanner.common.extensions.show
 import com.zynksoftware.documentscanner.common.utils.FileUriUtils
+import com.zynksoftware.documentscanner.databinding.FragmentCameraScreenBinding
 import com.zynksoftware.documentscanner.model.DocumentScannerErrorModel
 import com.zynksoftware.documentscanner.ui.base.BaseFragment
 import com.zynksoftware.documentscanner.ui.components.scansurface.ScanSurfaceListener
 import com.zynksoftware.documentscanner.ui.scan.InternalScanActivity
-import kotlinx.android.synthetic.main.fragment_camera_screen.*
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -52,21 +52,28 @@ internal class CameraScreenFragment: BaseFragment(), ScanSurfaceListener  {
         }
     }
 
+    private var _binding : FragmentCameraScreenBinding? = null
+    private val binding get() = _binding!!
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_camera_screen, container, false)
+        _binding = FragmentCameraScreenBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        scanSurfaceView.lifecycleOwner = this
-        scanSurfaceView.listener = this
-        scanSurfaceView.originalImageFile = getScanActivity().originalImageFile
+        binding.scanSurfaceView.lifecycleOwner = this
+        binding.scanSurfaceView.listener = this
+        binding.scanSurfaceView.originalImageFile = getScanActivity().originalImageFile
 
         checkForCameraPermissions()
         initListeners()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null;
+    }
     override fun onDestroy() {
         super.onDestroy()
         if(getScanActivity().shouldCallOnClose) {
@@ -77,33 +84,33 @@ internal class CameraScreenFragment: BaseFragment(), ScanSurfaceListener  {
     override fun onResume() {
         super.onResume()
         getScanActivity().reInitOriginalImageFile()
-        scanSurfaceView.originalImageFile = getScanActivity().originalImageFile
+        binding.scanSurfaceView.originalImageFile = getScanActivity().originalImageFile
     }
 
     private fun initListeners() {
-        cameraCaptureButton.setOnClickListener {
+        binding.cameraCaptureButton.setOnClickListener {
             takePhoto()
         }
-        cancelButton.setOnClickListener {
+        binding.cancelButton.setOnClickListener {
             finishActivity()
         }
-        flashButton.setOnClickListener {
+        binding.flashButton.setOnClickListener {
             switchFlashState()
         }
-        galleryButton.setOnClickListener {
+        binding.galleryButton.setOnClickListener {
             checkForStoragePermissions()
         }
-        autoButton.setOnClickListener {
+        binding.autoButton.setOnClickListener {
             toggleAutoManualButton()
         }
     }
 
     private fun toggleAutoManualButton() {
-        scanSurfaceView.isAutoCaptureOn = !scanSurfaceView.isAutoCaptureOn
-        if (scanSurfaceView.isAutoCaptureOn) {
-            autoButton.text = getString(R.string.zdc_auto)
+        binding.scanSurfaceView.isAutoCaptureOn = !binding.scanSurfaceView.isAutoCaptureOn
+        if (binding.scanSurfaceView.isAutoCaptureOn) {
+            binding.autoButton.text = getString(R.string.zdc_auto)
         } else {
-            autoButton.text = getString(R.string.zdc_manual)
+            binding.autoButton.text = getString(R.string.zdc_manual)
         }
     }
 
@@ -144,11 +151,11 @@ internal class CameraScreenFragment: BaseFragment(), ScanSurfaceListener  {
     }
 
     private fun startCamera() {
-        scanSurfaceView.start()
+        binding.scanSurfaceView.start()
     }
 
     private fun takePhoto() {
-        scanSurfaceView.takePicture()
+        binding.scanSurfaceView.takePicture()
     }
 
     private fun getScanActivity(): InternalScanActivity {
@@ -160,15 +167,15 @@ internal class CameraScreenFragment: BaseFragment(), ScanSurfaceListener  {
     }
 
     private fun switchFlashState() {
-        scanSurfaceView.switchFlashState()
+        binding.scanSurfaceView.switchFlashState()
     }
 
     override fun showFlash() {
-        flashButton?.show()
+        binding.flashButton?.show()
     }
 
     override fun hideFlash() {
-        flashButton?.hide()
+        binding.flashButton?.hide()
     }
 
     private fun selectImageFromGallery() {
@@ -232,10 +239,10 @@ internal class CameraScreenFragment: BaseFragment(), ScanSurfaceListener  {
     }
 
     override fun showFlashModeOn() {
-        flashButton.setImageResource(R.drawable.zdc_flash_on)
+        binding.flashButton.setImageResource(R.drawable.zdc_flash_on)
     }
 
     override fun showFlashModeOff() {
-        flashButton.setImageResource(R.drawable.zdc_flash_off)
+        binding.flashButton.setImageResource(R.drawable.zdc_flash_off)
     }
 }
