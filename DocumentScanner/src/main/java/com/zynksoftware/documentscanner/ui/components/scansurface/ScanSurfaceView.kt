@@ -31,7 +31,7 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
-import com.zynksoftware.documentscanner.R
+import com.zynkware.R
 import com.zynksoftware.documentscanner.common.extensions.yuvToRgba
 import com.zynksoftware.documentscanner.common.utils.ImageDetectionProperties
 import com.zynksoftware.documentscanner.common.utils.OpenCvNativeBridge

@@ -30,7 +30,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
-import com.zynksoftware.documentscanner.R
+import com.zynkware.R
 import java.util.*
 
 internal class PolygonView @JvmOverloads constructor(
