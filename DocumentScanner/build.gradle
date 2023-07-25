@@ -1,7 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'com.github.dcendents.android-maven'
 
 group="com.zynkware"
 
@@ -15,17 +14,21 @@ repositories {
 }
 
 android {
-    compileSdkVersion 29
+    namespace "com.zynkware"
+    compileSdkVersion 33
     buildToolsVersion "29.0.3"
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 33
         versionCode libraryVersionCode
         versionName libraryVersionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+        aarMetadata {
+            minCompileSdk = 29
+        }
     }
 
     buildTypes {
@@ -48,6 +51,11 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
         main.res.srcDirs = ['src/main/res']
         main.manifest.srcFile 'src/main/AndroidManifest.xml'
+    }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
     }
 }
 
