@@ -31,7 +31,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
-import com.zynksoftware.documentscanner.R
+import com.zynkware.R
 import org.opencv.core.Point
 
 internal class ScanCanvasView : FrameLayout {
