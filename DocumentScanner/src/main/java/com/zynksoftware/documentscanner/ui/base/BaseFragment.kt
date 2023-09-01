@@ -21,9 +21,9 @@ package com.zynksoftware.documentscanner.ui.base
 
 import android.widget.RelativeLayout
 import androidx.fragment.app.Fragment
+import com.zynksoftware.documentscanner.R
 import com.zynksoftware.documentscanner.common.extensions.hide
 import com.zynksoftware.documentscanner.common.extensions.show
-import com.zynkware.R
 
 internal abstract class BaseFragment : Fragment() {
 

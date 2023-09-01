@@ -25,18 +25,17 @@ import android.os.CountDownTimer
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.Surface
 import android.widget.FrameLayout
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
-import com.zynkware.R
 import com.zynksoftware.documentscanner.common.extensions.yuvToRgba
 import com.zynksoftware.documentscanner.common.utils.ImageDetectionProperties
 import com.zynksoftware.documentscanner.common.utils.OpenCvNativeBridge
 import com.zynksoftware.documentscanner.model.DocumentScannerErrorModel
 import com.zynksoftware.documentscanner.model.DocumentScannerErrorModel.ErrorMessage
+import com.zynksoftware.documentscanner.R
 import kotlinx.android.synthetic.main.scan_surface_view.view.*
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
@@ -100,7 +99,7 @@ internal class ScanSurfaceView : FrameLayout {
     private fun openCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
-        cameraProviderFuture.addListener(Runnable {
+        cameraProviderFuture.addListener({
             cameraProvider = cameraProviderFuture.get()
 
             try {
@@ -153,7 +152,7 @@ internal class ScanSurfaceView : FrameLayout {
             .setTargetResolution(android.util.Size(width, height))
             .build()
 
-        imageAnalysis?.setAnalyzer(ContextCompat.getMainExecutor(context), { image ->
+        imageAnalysis?.setAnalyzer(ContextCompat.getMainExecutor(context)) { image ->
             if (isAutoCaptureOn) {
                 try {
                     val mat = image.yuvToRgba()
@@ -174,7 +173,7 @@ internal class ScanSurfaceView : FrameLayout {
                 clearAndInvalidateCanvas()
             }
             image.close()
-        })
+        }
 
         camera = cameraProvider!!.bindToLifecycle(lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, preview, imageAnalysis, imageCapture)
     }
