@@ -26,7 +26,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.zynkware.R
+import com.zynksoftware.documentscanner.R
 import com.zynksoftware.documentscanner.common.extensions.rotateBitmap
 import com.zynksoftware.documentscanner.ui.base.BaseFragment
 import com.zynksoftware.documentscanner.ui.scan.InternalScanActivity
