@@ -36,11 +36,12 @@ import android.widget.FrameLayout
 import com.zynksoftware.documentscanner.R
 import com.zynksoftware.documentscanner.common.extensions.scaledBitmap
 import com.zynksoftware.documentscanner.common.utils.OpenCvNativeBridge
+import com.zynksoftware.documentscanner.databinding.FragmentImageCropBinding
 import com.zynksoftware.documentscanner.model.DocumentScannerErrorModel
 import com.zynksoftware.documentscanner.ui.base.BaseFragment
 import com.zynksoftware.documentscanner.ui.scan.InternalScanActivity
 import id.zelory.compressor.determineImageRotation
-import kotlinx.android.synthetic.main.fragment_image_crop.*
+
 
 internal class ImageCropFragment : BaseFragment() {
 
@@ -56,8 +57,15 @@ internal class ImageCropFragment : BaseFragment() {
 
     private var selectedImage: Bitmap? = null
 
+    private var _binding: FragmentImageCropBinding? = null
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding!!
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_image_crop, container, false)
+        _binding = FragmentImageCropBinding.inflate(inflater, container, false)
+        val view = binding.root
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -73,7 +81,7 @@ internal class ImageCropFragment : BaseFragment() {
                 closeFragment()
             }
         }
-        holderImageView.post {
+        binding.holderImageView.post {
             initializeCropping()
         }
 
@@ -81,10 +89,10 @@ internal class ImageCropFragment : BaseFragment() {
     }
 
     private fun initListeners() {
-        closeButton.setOnClickListener {
+        binding.closeButton.setOnClickListener {
             closeFragment()
         }
-        confirmButton.setOnClickListener {
+        binding.confirmButton.setOnClickListener {
             onConfirmButtonClicked()
         }
     }
@@ -95,17 +103,17 @@ internal class ImageCropFragment : BaseFragment() {
 
     private fun initializeCropping() {
         if(selectedImage != null && selectedImage!!.width > 0 && selectedImage!!.height > 0) {
-            val scaledBitmap: Bitmap = selectedImage!!.scaledBitmap(holderImageCrop.width, holderImageCrop.height)
-            imagePreview.setImageBitmap(scaledBitmap)
-            val tempBitmap = (imagePreview.drawable as BitmapDrawable).bitmap
+            val scaledBitmap: Bitmap = selectedImage!!.scaledBitmap(binding.holderImageCrop.width, binding.holderImageCrop.height)
+            binding.imagePreview.setImageBitmap(scaledBitmap)
+            val tempBitmap = (binding.imagePreview.drawable as BitmapDrawable).bitmap
             val pointFs = getEdgePoints(tempBitmap)
             Log.d(TAG, "ZDCgetEdgePoints ends ${System.currentTimeMillis()}")
-            polygonView.setPoints(pointFs)
-            polygonView.visibility = View.VISIBLE
+            binding.polygonView.setPoints(pointFs)
+            binding.polygonView.visibility = View.VISIBLE
             val padding = resources.getDimension(R.dimen.zdc_polygon_dimens).toInt()
             val layoutParams = FrameLayout.LayoutParams(tempBitmap.width + padding, tempBitmap.height + padding)
             layoutParams.gravity = Gravity.CENTER
-            polygonView.layoutParams = layoutParams
+            binding.polygonView.layoutParams = layoutParams
         }
     }
 
@@ -123,16 +131,16 @@ internal class ImageCropFragment : BaseFragment() {
     private fun getEdgePoints(tempBitmap: Bitmap): Map<Int, PointF> {
         Log.d(TAG, "ZDCgetEdgePoints Starts ${System.currentTimeMillis()}")
         val pointFs: List<PointF> = nativeClass.getContourEdgePoints(tempBitmap)
-        return polygonView.getOrderedValidEdgePoints(tempBitmap, pointFs)
+        return binding.polygonView.getOrderedValidEdgePoints(tempBitmap, pointFs)
     }
 
     private fun getCroppedImage() {
         if(selectedImage != null) {
             try {
                 Log.d(TAG, "ZDCgetCroppedImage starts ${System.currentTimeMillis()}")
-                val points: Map<Int, PointF> = polygonView.getPoints()
-                val xRatio: Float = selectedImage!!.width.toFloat() / imagePreview.width
-                val yRatio: Float = selectedImage!!.height.toFloat() / imagePreview.height
+                val points: Map<Int, PointF> = binding.polygonView.getPoints()
+                val xRatio: Float = selectedImage!!.width.toFloat() / binding.imagePreview.width
+                val yRatio: Float = selectedImage!!.height.toFloat() / binding.imagePreview.height
                 val pointPadding = requireContext().resources.getDimension(R.dimen.zdc_point_padding).toInt()
                 val x1: Float = (points.getValue(0).x + pointPadding) * xRatio
                 val x2: Float = (points.getValue(1).x + pointPadding) * xRatio

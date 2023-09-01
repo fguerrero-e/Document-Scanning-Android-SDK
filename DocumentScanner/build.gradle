@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 
 group="com.zynkware"
 
@@ -16,6 +15,9 @@ repositories {
 android {
     compileSdkVersion 33
 
+    buildFeatures {
+        viewBinding = true
+    }
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 33

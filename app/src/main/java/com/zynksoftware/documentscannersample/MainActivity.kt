@@ -2,18 +2,22 @@ package com.zynksoftware.documentscannersample
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_main.*
+import com.zynksoftware.documentscannersample.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
+
+    private lateinit var binding: ActivityMainBinding
+            override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         initListners()
     }
 
     private fun initListners() {
-        scanLibButton.setOnClickListener {
+        binding.scanLibButton.setOnClickListener {
             AppScanActivity.start(this)
         }
     }
