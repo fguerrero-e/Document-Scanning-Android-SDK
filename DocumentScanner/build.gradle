@@ -8,7 +8,7 @@ repositories {
 }
 
 android {
-    compileSdkVersion 34
+    compileSdk = 34
 
     buildFeatures {
         viewBinding = true
@@ -50,7 +50,7 @@ android {
             withSourcesJar()
         }
     }
-    namespace 'com.zynksoftware.documentscanner'
+    namespace = "com.zynksoftware.documentscanner"
 }
 
 repositories {
