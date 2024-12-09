@@ -3,26 +3,20 @@ apply plugin: 'kotlin-android'
 
 group="com.zynksoftware.documentscanner"
 
-repositories {
-    mavenCentral()
-    google()
-    maven { url "https://jitpack.io" }
-}
-
 android {
-    compileSdk = 34
+    compileSdk = 35
 
     buildFeatures {
         viewBinding = true
     }
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 34
+        targetSdkVersion 35
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
         aarMetadata {
-            minCompileSdk = 34
+            minCompileSdk = 35
         }
     }
 
@@ -34,12 +28,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 
     sourceSets {
@@ -55,15 +49,17 @@ android {
     namespace = "com.zynksoftware.documentscanner"
 }
 
-repositories {
-    mavenCentral()
-    google()
-    maven { url 'https://jitpack.io' }
-}
-
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    constraints {
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version") {
+            because("kotlin-stdlib-jdk7 is now a part of kotlin-stdlib and to not fail builds due duplicate classes")
+        }
+        implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version") {
+            because("kotlin-stdlib-jdk8 is now a part of kotlin-stdlib and to not fail builds due duplicate classes")
+        }
+    }
 
     implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -82,4 +78,8 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
     implementation 'id.zelory:compressor:3.0.1'
     implementation 'androidx.test:monitor:1.6.1'
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
