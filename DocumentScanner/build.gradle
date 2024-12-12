@@ -3,6 +3,8 @@ plugins {
     id 'kotlin-android'
 }
 
+group="com.zynksoftware.documentscanner"
+
 android {
     compileSdk = 35
 
