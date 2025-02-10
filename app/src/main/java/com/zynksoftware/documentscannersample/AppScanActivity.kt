@@ -12,7 +12,11 @@ import android.os.Environment
 import android.os.Environment.DIRECTORY_DCIM
 import android.provider.MediaStore
 import android.util.Log
+import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import com.fondesa.kpermissions.allGranted
 import com.fondesa.kpermissions.allShouldShowRationale
 import com.fondesa.kpermissions.extension.permissionsBuilder
@@ -23,12 +27,18 @@ import com.zynksoftware.documentscanner.model.ScannerResults
 import com.zynksoftware.documentscannersample.adapters.ImageAdapter
 import com.zynksoftware.documentscannersample.adapters.ImageAdapterListener
 import com.zynksoftware.documentscannersample.databinding.AppScanActivityLayoutBinding
-import java.io.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.OutputStream
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 
-class AppScanActivity: ScanActivity(), ImageAdapterListener {
+class AppScanActivity : ScanActivity(), ImageAdapterListener {
+    private lateinit var binding: AppScanActivityLayoutBinding
 
     companion object {
         private val TAG = AppScanActivity::class.simpleName
@@ -42,17 +52,20 @@ class AppScanActivity: ScanActivity(), ImageAdapterListener {
     private var alertDialogBuilder: android.app.AlertDialog.Builder? = null
     private var alertDialog: android.app.AlertDialog? = null
 
-    private lateinit var binding: AppScanActivityLayoutBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = AppScanActivityLayoutBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
         addFragmentContentLayout()
+        setupEdgeToEdge()
     }
 
     override fun onError(error: DocumentScannerErrorModel) {
-        showAlertDialog(getString(R.string.error_label), error.errorMessage?.error, getString(R.string.ok_label))
+        showAlertDialog(
+            getString(R.string.error_label),
+            error.errorMessage?.error,
+            getString(R.string.ok_label)
+        )
     }
 
     override fun onSuccess(scannerResults: ScannerResults) {
@@ -74,7 +87,7 @@ class AppScanActivity: ScanActivity(), ImageAdapterListener {
             .send { result ->
                 if (result.allGranted()) {
                     saveImage(image)
-                } else if(result.allShouldShowRationale()) {
+                } else if (result.allShouldShowRationale()) {
                     onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.STORAGE_PERMISSION_REFUSED_WITHOUT_NEVER_ASK_AGAIN))
                 } else {
                     onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.STORAGE_PERMISSION_REFUSED_GO_TO_SETTINGS))
@@ -109,7 +122,8 @@ class AppScanActivity: ScanActivity(), ImageAdapterListener {
         val formatter = SimpleDateFormat("dd_MM_yyyy_HH_mm_ss:mm", Locale.getDefault())
         val dateFormatted = formatter.format(date)
 
-        val to = File(Environment.getExternalStorageDirectory().absolutePath + "/" + DIRECTORY_DCIM + "/zynkphoto${dateFormatted}.jpg")
+        val to =
+            File(Environment.getExternalStorageDirectory().absolutePath + "/" + DIRECTORY_DCIM + "/zynkphoto${dateFormatted}.jpg")
 
         val inputStream: InputStream = FileInputStream(image)
 
@@ -119,7 +133,8 @@ class AppScanActivity: ScanActivity(), ImageAdapterListener {
             contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, "zynkphoto${dateFormatted}.jpg")
             contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/*")
             contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, "DCIM")
-            val imageUri: Uri? = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+            val imageUri: Uri? =
+                resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
             val out = resolver.openOutputStream(imageUri!!)
             out?.write(image.readBytes())
             out?.flush()
@@ -137,7 +152,7 @@ class AppScanActivity: ScanActivity(), ImageAdapterListener {
             out.close()
         }
 
-        hideProgessBar()
+        hideProgressBar()
         showAlertDialog(getString(R.string.photo_saved), "", getString(R.string.ok_label))
     }
 
@@ -145,7 +160,7 @@ class AppScanActivity: ScanActivity(), ImageAdapterListener {
         binding.progressLayoutApp.isVisible = true
     }
 
-    private fun hideProgessBar() {
+    private fun hideProgressBar() {
         binding.progressLayoutApp.isVisible = false
     }
 
@@ -172,7 +187,7 @@ class AppScanActivity: ScanActivity(), ImageAdapterListener {
         binding.viewPagerTwo.isUserInputEnabled = false
 
         binding.previousButton.setOnClickListener {
-            binding.viewPagerTwo.currentItem = binding.viewPagerTwo.currentItem - 1
+            binding.viewPagerTwo.currentItem -= 1
             binding.nextButton.isVisible = true
             if (binding.viewPagerTwo.currentItem == 0) {
                 binding.previousButton.isVisible = false
@@ -180,7 +195,7 @@ class AppScanActivity: ScanActivity(), ImageAdapterListener {
         }
 
         binding.nextButton.setOnClickListener {
-            binding.viewPagerTwo.currentItem = binding.viewPagerTwo.currentItem + 1
+            binding.viewPagerTwo.currentItem += 1
             binding.previousButton.isVisible = true
             if (binding.viewPagerTwo.currentItem == fileList.size - 1) {
                 binding.nextButton.isVisible = false
@@ -192,7 +207,7 @@ class AppScanActivity: ScanActivity(), ImageAdapterListener {
         alertDialogBuilder = android.app.AlertDialog.Builder(this)
             .setTitle(title)
             .setMessage(message)
-            .setPositiveButton(buttonMessage) { dialog, which ->
+            .setPositiveButton(buttonMessage) { _, _ ->
 
             }
         alertDialog?.dismiss()
@@ -201,7 +216,25 @@ class AppScanActivity: ScanActivity(), ImageAdapterListener {
         alertDialog?.show()
     }
 
-    val File.size get() = if (!exists()) 0.0 else length().toDouble()
-    val File.sizeInKb get() = size / 1024
-    val File.sizeInMb get() = sizeInKb / 1024
+    private fun setupEdgeToEdge() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            with(binding) {
+                viewPagerTwo.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    topMargin = systemBarsInsets.top
+                }
+
+                bottomBar.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    bottomMargin = systemBarsInsets.bottom
+                }
+            }
+
+            insets
+        }
+    }
+
+    private val File.size get() = if (!exists()) 0.0 else length().toDouble()
+    private val File.sizeInKb get() = size / 1024
+    private val File.sizeInMb get() = sizeInKb / 1024
 }
