@@ -25,7 +25,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
-import com.zynkware.R
+import com.zynksoftware.documentscanner.R
 
 internal class PolygonPointImageView @JvmOverloads constructor(
     context: Context,

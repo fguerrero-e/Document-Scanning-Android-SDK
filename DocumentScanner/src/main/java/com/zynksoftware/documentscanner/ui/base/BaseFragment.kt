@@ -27,7 +27,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.zynksoftware.documentscanner.common.extensions.hide
 import com.zynksoftware.documentscanner.common.extensions.show
-import com.zynkware.R
+import com.zynksoftware.documentscanner.R
 
 internal abstract class BaseFragment : Fragment() {
 
