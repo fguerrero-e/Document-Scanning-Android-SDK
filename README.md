@@ -159,6 +159,8 @@ All errors are returned to app using `fun onError(error: DocumentScannerErrorMod
 * Inspiration
   from [mayuce](https://github.com/mayuce/AndroidDocumentScanner), [adityaarora1](https://github.com/adityaarora1/LiveEdgeDetection)
   and [hannesa2](https://github.com/hannesa2/LiveEdgeDetection)
+* [Original Repo](https://github.com/zynkware/Document-Scanning-Android-SDK)
+* [Updated Repo](https://github.com/Hazzatur/Document-Scanning-Android-SDK)
 
 ## License
 

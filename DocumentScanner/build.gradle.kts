@@ -67,9 +67,9 @@ afterEvaluate {
         publications {
             create("release", MavenPublication::class) {
                 from(components["release"])
-                groupId = "com.github.hazzatur"
+                groupId = "com.github.eci-rhc"
                 artifactId = "Document-Scanning-Android-SDK"
-                version = "1.2.2"
+                version = "1.3.0"
             }
         }
     }

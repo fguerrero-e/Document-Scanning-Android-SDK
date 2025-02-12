@@ -6,5 +6,7 @@ pluginManagement {
         maven(url = "https://jitpack.io")
     }
 }
-rootProject.name = "DocumentScannerSample"
-include(":DocumentScanner", ":app")
+rootProject.name = "DocumentScannerLibrary"
+include(":DocumentScanner",
+//    ":app"
+)
