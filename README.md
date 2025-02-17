@@ -1,21 +1,24 @@
 # Document Scanner with tiny OpenCV
 
 <div align="center">
-    <img src="example1.gif"height="500" />
-    <img src="example2.gif"height="500" />
+    <img src="example1.gif" height="500"  alt="example1"/>
+    <img src="example2.gif" height="500" alt="example2"/>
 </div>
 
 
 
 
-**Document Scanner** is an Android library (kotlin based) for scanning documents based on [CameraX API](https://developer.android.com/training/camerax) and a tiny version of [OpenCV](https://opencv.org).
+**Document Scanner** is an Android library (kotlin based) for scanning documents based
+on [CameraX API](https://developer.android.com/training/camerax) and a tiny version
+of [OpenCV](https://opencv.org).
 
 ### Features
-- tiny version of OpenCV 4.4.0:
-	- armeabi-v7a: **3.1 MB** (original: 10.1 MB)
-	- arm64-v8a: **5.6 MB** (original: 18.8 MB)
-	- x86: **16.7 MB** (original: 38.6 MB)
-	- x86_64: **25.1 MB** (original: 53.7 MB)
+
+- tiny version of OpenCV **4.11.0**:
+    - arm64-v8a: **7.6 MB** (original: 21.6 MB)
+    - armeabi-v7a: **5.0 MB** (original: 14.8 MB)
+    - x86: **9.4 MB** (original: 39.5 MB)
+    - x86_64: **10.7 MB** (original: 53.2 MB)
 - live detection (also detect rectangle with one bent angle)
 - auto scan and flash support
 - edit detected rectangle
@@ -23,39 +26,39 @@
 
 ## Getting started
 
-**Document Scanner**  is supported on Android devices starting from **SDK 21 (Lollipop)** 
+**Document Scanner**  is supported on Android devices starting from **SDK 23 (Marshmallow)**.
 
 ### Installation
 
 in root project build.gradle:
 
 	allprojects {
-	    repositories {
-		...
-		maven { url "https://jitpack.io" }
+        repositories {
+		    ...
+		    maven(url = "https://jitpack.io")
 	    }
 	}
-	
+
 in app build.gradle:
 
 	android {
-	    ...
-	    compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_8
-		targetCompatibility JavaVersion.VERSION_1_8
-	    }
+      ...
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
+        }
 	}
 	
 	dependencies {
-    	    ...
-	    implementation 'com.github.zynkware:Document-Scanning-Android-SDK:1.1.1'
+      ...
+      implementation("com.github.Hazzatur:Document-Scanning-Android-SDK:1.2.3")
 	}
-	
+
 ### Usage
 
 #### Initialization
 
-In your Application class: 
+In your Application class:
 
     class MyCustomApplication: Application() {  
         override fun onCreate() {  
@@ -64,6 +67,7 @@ In your Application class:
 	    	configuration.imageQuality = 100  
 	    	configuration.imageSize = 1000000 // 1 MB  
 	    	configuration.imageType = Bitmap.CompressFormat.JPEG  
+	    	configuration.galleryButtonEnabled = false // default is false  
 	    	DocumentScanner.init(this, configuration) // or simply DocumentScanner.init(this)
         }   
     }
@@ -97,22 +101,27 @@ AppScanActivity:
             finish()  
         }
 
-
 #### ScannerResults
 
-Document Scanner library will return image files using `fun onSuccess(scannerResults: ScannerResults)`. ScannerResults contains 3 files:
+Document Scanner library will return image files
+using `fun onSuccess(scannerResults: ScannerResults)`. ScannerResults contains 3 files:
+
 - **originalImageFile** - image from camera (with Configuration declared in your Application class).
 - **croppedImageFile** - cropped/document image
-- **transformedImageFile** - croppedPhotoFile with grayscale filter or null if grayscale is not applied
+- **transformedImageFile** - croppedPhotoFile with grayscale filter or null if grayscale is not
+  applied
 
 #### Error Handling
+
 All errors are returned to app using `fun onError(error: DocumentScannerErrorModel)`
 
     data class DocumentScannerErrorModel(  
 	     var errorMessage: ErrorMessage? = null,  
 	     var throwable: Throwable? = null  
     )
+
 `ErrorMessage` is an enum containing the following error types:
+
 - TAKE_IMAGE_FROM_GALLERY_ERROR
 - PHOTO_CAPTURE_FAILED
 - CAMERA_USE_CASE_BINDING_FAILED
@@ -124,25 +133,34 @@ All errors are returned to app using `fun onError(error: DocumentScannerErrorMod
 - STORAGE_PERMISSION_REFUSED_GO_TO_SETTINGS
 - CROPPING_FAILED
 
-`Throwable` can be null for some error messages like Permissions 
+`Throwable` can be null for some error messages like Permissions
 
 ## Configuration
+
 * **imageQuality**:
-	* From 0 to 100
-	* Default value is 100
+    * From 0 to 100
+    * Default value is 100
 * **imageSize**:
-	* Image size in bytes
-	* No default value
+    * Image size in bytes
+    * No default value
 * **imageType**:
-	* imageType can be Bitmap.CompressFormat.JPEG, Bitmap.CompressFormat.PNG or Bitmap.CompressFormat.WEBP
-	* Default value is Bitmap.CompressFormat.JPEG
+    * imageType can be Bitmap.CompressFormat.JPEG, Bitmap.CompressFormat.PNG or
+      Bitmap.CompressFormat.WEBP
+    * Default value is Bitmap.CompressFormat.JPEG
+* **galleryButtonEnabled**: 
+    * Enable or disable gallery button
+    * Default value is false
 
 ## Thanks
+
 * [OpenCV](https://opencv.org)
 * [Compressor](https://github.com/zetbaitsu/Compressor)
 * [kPermissions](https://github.com/fondesa/kpermissions)
-* Inspiration from [mayuce](https://github.com/mayuce/AndroidDocumentScanner), [adityaarora1](https://github.com/adityaarora1/LiveEdgeDetection) and [hannesa2](https://github.com/hannesa2/LiveEdgeDetection)
-
+* Inspiration
+  from [mayuce](https://github.com/mayuce/AndroidDocumentScanner), [adityaarora1](https://github.com/adityaarora1/LiveEdgeDetection)
+  and [hannesa2](https://github.com/hannesa2/LiveEdgeDetection)
+* [Original Repo](https://github.com/zynkware/Document-Scanning-Android-SDK)
+* [Updated Repo](https://github.com/Hazzatur/Document-Scanning-Android-SDK)
 
 ## License
 

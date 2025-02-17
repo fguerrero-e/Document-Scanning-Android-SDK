@@ -26,16 +26,21 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.FrameLayout
-import androidx.camera.core.*
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.zynksoftware.documentscanner.common.extensions.yuvToRgba
 import com.zynksoftware.documentscanner.common.utils.ImageDetectionProperties
 import com.zynksoftware.documentscanner.common.utils.OpenCvNativeBridge
+import com.zynksoftware.documentscanner.databinding.ScanSurfaceViewBinding
 import com.zynksoftware.documentscanner.model.DocumentScannerErrorModel
 import com.zynksoftware.documentscanner.model.DocumentScannerErrorModel.ErrorMessage
-import com.zynksoftware.documentscanner.databinding.ScanSurfaceViewBinding
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
 import org.opencv.core.Size
@@ -45,6 +50,11 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 internal class ScanSurfaceView : FrameLayout {
+    private var binding: ScanSurfaceViewBinding = ScanSurfaceViewBinding.inflate(
+        LayoutInflater.from(context),
+        this,
+        true
+    )
 
     companion object {
         private val TAG = ScanSurfaceView::class.simpleName
@@ -56,7 +66,11 @@ internal class ScanSurfaceView : FrameLayout {
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context, attrs: AttributeSet?, defStyle: Int) : super(context, attrs, defStyle)
+    constructor(context: Context, attrs: AttributeSet?, defStyle: Int) : super(
+        context,
+        attrs,
+        defStyle
+    )
 
     lateinit var lifecycleOwner: LifecycleOwner
     lateinit var listener: ScanSurfaceListener
@@ -78,15 +92,6 @@ internal class ScanSurfaceView : FrameLayout {
     var isAutoCaptureOn: Boolean = true
     private var isFlashEnabled: Boolean = false
     private var flashMode: Int = ImageCapture.FLASH_MODE_OFF
-
-    private var _binding: ScanSurfaceViewBinding? = null
-    // This property is only valid between onCreateView and
-// onDestroyView.
-    private val binding get() = _binding!!
-
-    init {
-        _binding = ScanSurfaceViewBinding.inflate(LayoutInflater.from(context), this, true)
-    }
 
     fun start() {
         binding.viewFinder.post {
@@ -111,7 +116,12 @@ internal class ScanSurfaceView : FrameLayout {
                 checkIfFlashIsPresent()
             } catch (exc: Exception) {
                 Log.e(TAG, ErrorMessage.CAMERA_USE_CASE_BINDING_FAILED.error, exc)
-                listener.onError(DocumentScannerErrorModel(ErrorMessage.CAMERA_USE_CASE_BINDING_FAILED, exc))
+                listener.onError(
+                    DocumentScannerErrorModel(
+                        ErrorMessage.CAMERA_USE_CASE_BINDING_FAILED,
+                        exc
+                    )
+                )
             }
         }, ContextCompat.getMainExecutor(context))
     }
@@ -123,7 +133,7 @@ internal class ScanSurfaceView : FrameLayout {
     }
 
     private fun setImageCapture() {
-        if(imageCapture != null && cameraProvider?.isBound(imageCapture!!) == true) {
+        if (imageCapture != null && cameraProvider?.isBound(imageCapture!!) == true) {
             cameraProvider?.unbind(imageCapture)
         }
 
@@ -142,7 +152,7 @@ internal class ScanSurfaceView : FrameLayout {
             .setTargetResolution(previewSize)
             .build()
             .also {
-                it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
+                it.surfaceProvider = binding.viewFinder.surfaceProvider
             }
 
         setImageCapture()
@@ -164,13 +174,22 @@ internal class ScanSurfaceView : FrameLayout {
                     val largestQuad = nativeClass.detectLargestQuadrilateral(mat)
                     mat.release()
                     if (null != largestQuad) {
-                        drawLargestRect(largestQuad.contour, largestQuad.points, originalPreviewSize)
+                        drawLargestRect(
+                            largestQuad.contour,
+                            largestQuad.points,
+                            originalPreviewSize
+                        )
                     } else {
                         clearAndInvalidateCanvas()
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, ErrorMessage.DETECT_LARGEST_QUADRILATERAL_FAILED.error, e)
-                    listener.onError(DocumentScannerErrorModel(ErrorMessage.DETECT_LARGEST_QUADRILATERAL_FAILED, e))
+                    listener.onError(
+                        DocumentScannerErrorModel(
+                            ErrorMessage.DETECT_LARGEST_QUADRILATERAL_FAILED,
+                            e
+                        )
+                    )
                     clearAndInvalidateCanvas()
                 }
             } else {
@@ -179,7 +198,13 @@ internal class ScanSurfaceView : FrameLayout {
             image.close()
         }
 
-        camera = cameraProvider!!.bindToLifecycle(lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, preview, imageAnalysis, imageCapture)
+        camera = cameraProvider!!.bindToLifecycle(
+            lifecycleOwner,
+            CameraSelector.DEFAULT_BACK_CAMERA,
+            preview,
+            imageAnalysis,
+            imageCapture
+        )
     }
 
     private fun drawLargestRect(approx: MatOfPoint2f, points: Array<Point>, stdSize: Size) {
@@ -187,13 +212,19 @@ internal class ScanSurfaceView : FrameLayout {
         val previewWidth = stdSize.height.toFloat()
         val previewHeight = stdSize.width.toFloat()
 
-        val resultWidth = max(previewWidth - points[0].y.toFloat(), previewWidth - points[1].y.toFloat()) -
-                min(previewWidth - points[2].y.toFloat(), previewWidth - points[3].y.toFloat())
+        val resultWidth =
+            max(previewWidth - points[0].y.toFloat(), previewWidth - points[1].y.toFloat()) -
+                    min(previewWidth - points[2].y.toFloat(), previewWidth - points[3].y.toFloat())
 
-        val resultHeight = max(points[1].x.toFloat(), points[2].x.toFloat()) - min(points[0].x.toFloat(), points[3].x.toFloat())
+        val resultHeight = max(points[1].x.toFloat(), points[2].x.toFloat()) - min(
+            points[0].x.toFloat(),
+            points[3].x.toFloat()
+        )
 
-        val imgDetectionPropsObj = ImageDetectionProperties(previewWidth.toDouble(), previewHeight.toDouble(),
-            points[0], points[1], points[2], points[3], resultWidth.toInt(), resultHeight.toInt())
+        val imgDetectionPropsObj = ImageDetectionProperties(
+            previewWidth.toDouble(), previewHeight.toDouble(),
+            points[0], points[1], points[2], points[3], resultWidth.toInt(), resultHeight.toInt()
+        )
         if (imgDetectionPropsObj.isNotValidImage(approx)) {
             binding.scanCanvasView.clearShape()
             cancelAutoCapture()
@@ -243,7 +274,12 @@ internal class ScanSurfaceView : FrameLayout {
                 override fun onError(exc: ImageCaptureException) {
                     listener.scanSurfaceHideProgress()
                     Log.e(TAG, "${ErrorMessage.PHOTO_CAPTURE_FAILED.error}: ${exc.message}", exc)
-                    listener.onError(DocumentScannerErrorModel(ErrorMessage.PHOTO_CAPTURE_FAILED, exc))
+                    listener.onError(
+                        DocumentScannerErrorModel(
+                            ErrorMessage.PHOTO_CAPTURE_FAILED,
+                            exc
+                        )
+                    )
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
@@ -284,6 +320,10 @@ internal class ScanSurfaceView : FrameLayout {
             ImageCapture.FLASH_MODE_OFF
         }
         setImageCapture()
-        camera = cameraProvider!!.bindToLifecycle(lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, imageCapture)
+        camera = cameraProvider!!.bindToLifecycle(
+            lifecycleOwner,
+            CameraSelector.DEFAULT_BACK_CAMERA,
+            imageCapture
+        )
     }
 }

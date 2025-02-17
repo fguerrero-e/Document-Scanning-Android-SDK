@@ -29,18 +29,19 @@ object DocumentScanner {
     fun init(context: Context, configuration: Configuration = Configuration()) {
         System.loadLibrary("opencv_java4")
         val sessionManager = SessionManager(context)
-        if(configuration.imageQuality in 1..100) {
+        if (configuration.imageQuality in 1..100) {
             sessionManager.setImageQuality(configuration.imageQuality)
         }
         sessionManager.setImageSize(configuration.imageSize)
         sessionManager.setImageType(configuration.imageType)
+        sessionManager.setGalleryButtonEnabled(configuration.galleryButtonEnabled)
     }
 
 
     data class Configuration(
         var imageQuality: Int = 100,
         var imageSize: Long = -1,
-        var imageType: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
-    ){
-    }
+        var imageType: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
+        var galleryButtonEnabled: Boolean = true
+    )
 }
